@@ -1,29 +1,27 @@
-import React from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import MissionLog from './pages/MissionLog';
-import Support from './pages/Support';
-import Checkout from './pages/Checkout';
-import Garage from './pages/Garage';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import ProductDetail from './pages/ProductDetail';
-import Cart from './pages/Cart';
-import Accessories from './pages/Accessories';
+import React from "react";
+import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
+import Header from "@/components/Layout/Header";
+import Footer from "@/components/Layout/Footer";
+import Home from "@/features/home/routes/Home";
+import MissionLog from "@/features/missions/routes/MissionLog";
+import Support from "@/features/support/routes/Support";
+import Checkout from "@/features/checkout/routes/Checkout";
+import Garage from "@/features/workshop/routes/Garage";
+import Dashboard from "@/features/dashboard/routes/Dashboard";
+import Login from "@/features/auth/routes/Login";
+import ProductDetail from "@/features/products/routes/ProductDetail";
+import Cart from "@/features/cart/routes/Cart";
+import Accessories from "@/features/products/routes/Accessories";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
-  const hideHeaderRoutes = ['/login'];
+  const hideHeaderRoutes = ["/login"];
   const isHeaderHidden = hideHeaderRoutes.includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen font-display text-white bg-background-dark selection:bg-primary selection:text-white">
       {!isHeaderHidden && <Header />}
-      <main className="flex-grow flex flex-col">
-        {children}
-      </main>
+      <main className="flex-grow flex flex-col">{children}</main>
       {!isHeaderHidden && <Footer />}
     </div>
   );
