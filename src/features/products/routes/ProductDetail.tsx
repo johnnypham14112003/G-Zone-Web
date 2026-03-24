@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Product, getProductById, getProducts } from '@/features/admin/api/product-api';
 import { addToCart } from '@/lib/cart';
 import { useToast } from '@/providers/ToastProvider';
+import { postCartItemToServer } from '@/features/accounts/api/cart-api';
+import ProductRatings from './Productratings';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams();
@@ -22,7 +24,6 @@ const ProductDetail: React.FC = () => {
       try {
         const data = await getProductById(id);
         setProduct(data);
-        // Load related (same category, exclude self)
         const all = await getProducts(1, 20);
         setRelated(all.filter((p) => p.categoryId === data.categoryId && p.productId !== data.productId && p.isActive).slice(0, 4));
       } catch (error) {
@@ -36,20 +37,29 @@ const ProductDetail: React.FC = () => {
   }, [id, navigate]);
 
   const addItem = () => {
-    if (!product) return;
-    addToCart({
-      productId: product.productId,
-      productName: product.productName,
-      sku: product.sku,
-      basePrice: product.basePrice,
-      quantity: qty,
-      categoryId: product.categoryId,
-      warrantyPeriodMonths: product.warrantyPeriodMonths,
-    });
-    setAdded(true);
-    showToast(`"${product.productName}" added to cart!`);
-    setTimeout(() => setAdded(false), 2000);
-  };
+  if (!product) return;
+  addToCart({
+    productId: product.productId,
+    productName: product.productName,
+    sku: product.sku,
+    basePrice: product.basePrice,
+    quantity: qty,
+    categoryId: product.categoryId,
+    warrantyPeriodMonths: product.warrantyPeriodMonths,
+  });
+  postCartItemToServer({
+    productId: product.productId,
+    productName: product.productName,
+    sku: product.sku,
+    basePrice: product.basePrice,
+    quantity: qty,
+    categoryId: product.categoryId,
+    warrantyPeriodMonths: product.warrantyPeriodMonths,
+  });
+  setAdded(true);
+  showToast(`"${product.productName}" added to cart!`);
+  setTimeout(() => setAdded(false), 2000);
+};
 
   const buyNow = () => {
     if (!product) return;
@@ -144,7 +154,6 @@ const ProductDetail: React.FC = () => {
               </div>
             </div>
 
-            {/* Specs */}
             <div className="grid grid-cols-2 gap-2 text-xs text-text-muted">
               {[
                 { label: 'SKU', value: product.sku },
@@ -159,7 +168,6 @@ const ProductDetail: React.FC = () => {
               ))}
             </div>
 
-            {/* Warranty badge */}
             {(product.warrantyPeriodMonths ?? 0) > 0 && (
               <div className="flex items-center gap-3 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-3">
                 <span className="material-symbols-outlined text-indigo-400 text-xl">shield</span>
@@ -231,6 +239,12 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
       )}
+  <ProductRatings
+    productId={product.productId}
+    averageRating={product.averageRating}
+    totalReviews={product.totalReviews}
+  />
+        
     </div>
   );
 };
