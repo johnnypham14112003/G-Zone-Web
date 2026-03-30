@@ -4,21 +4,22 @@ import { useAuth } from '@/providers/AuthProvider';
 import ProfileDropdown from '../UI/ProfileDropdown';
 import NotificationBell from './NotificationBell';
 import { getCart, getCartCount } from '@/lib/cart';
+import logo from "@/assets/logo/logo-gzone.png";
 
 const primaryLinks = [
-  { to: '/shop', label: 'Shop All' },
-  { to: '/garage', label: 'Garage' },
-  { to: '/missions', label: 'Missions' },
-  { to: '/support', label: 'Support' },
+  { to: "/shop", label: "Shop All" },
+  { to: "/garage", label: "Garage" },
+  { to: "/missions", label: "Missions" },
+  { to: "/support", label: "Support" },
 ];
 
 const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const isCheckout = location.pathname === '/checkout';
+  const isCheckout = location.pathname === "/checkout";
   const [cartCount, setCartCount] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const syncCartCount = () => {
@@ -26,33 +27,37 @@ const Header: React.FC = () => {
     };
 
     syncCartCount();
-    window.addEventListener('cart:updated', syncCartCount);
-    return () => window.removeEventListener('cart:updated', syncCartCount);
+    window.addEventListener("cart:updated", syncCartCount);
+    return () => window.removeEventListener("cart:updated", syncCartCount);
   }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    setSearchTerm(params.get('search') || '');
+    setSearchTerm(params.get("search") || "");
   }, [location.search]);
 
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const query = searchTerm.trim();
-    navigate(query ? `/shop?search=${encodeURIComponent(query)}` : '/shop');
+    navigate(query ? `/shop?search=${encodeURIComponent(query)}` : "/shop");
   };
 
   if (isCheckout) {
     return (
       <header className="flex items-center justify-between whitespace-nowrap border-b border-[#333] bg-[#0D0D0D]/95 backdrop-blur px-6 lg:px-40 py-4 sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-3 text-white">
-          <div className="text-primary">
-            <span className="material-symbols-outlined text-4xl">two_wheeler</span>
-          </div>
-          <h2 className="text-white text-xl font-bold leading-tight tracking-tighter uppercase">MotoGear</h2>
+          <img src={logo} alt="GZone" className="h-10" />
+          <span className="text-lg font-bold tracking-tighter uppercase">
+            GZone
+          </span>
         </Link>
         <div className="flex items-center gap-3 bg-[#1A1A1A] px-4 py-2 rounded-full border border-[#333]">
-          <span className="material-symbols-outlined text-[#6B6B6B] text-lg">lock</span>
-          <span className="text-sm font-bold text-[#E0E0E0] uppercase tracking-wider">Secure Checkout</span>
+          <span className="material-symbols-outlined text-[#6B6B6B] text-lg">
+            lock
+          </span>
+          <span className="text-sm font-bold text-[#E0E0E0] uppercase tracking-wider">
+            Secure Checkout
+          </span>
         </div>
       </header>
     );
@@ -68,9 +73,14 @@ const Header: React.FC = () => {
             <span>Support 7 days</span>
           </div>
           <div className="flex items-center gap-5">
-            <Link to="/support" className="transition-colors hover:text-white">Help Center</Link>
-            <Link to={isAuthenticated ? '/profile' : '/login'} className="transition-colors hover:text-white">
-              {isAuthenticated ? 'My Account' : 'Sign In'}
+            <Link to="/support" className="transition-colors hover:text-white">
+              Help Center
+            </Link>
+            <Link
+              to={isAuthenticated ? "/profile" : "/login"}
+              className="transition-colors hover:text-white"
+            >
+              {isAuthenticated ? "My Account" : "Sign In"}
             </Link>
           </div>
         </div>
@@ -79,20 +89,22 @@ const Header: React.FC = () => {
       <div className="mx-auto max-w-[1440px] px-4 md:px-8">
         <div className="flex min-h-16 items-center gap-4 py-3">
           <div className="flex min-w-0 items-center gap-6">
-            <Link to="/" className="flex items-center gap-3 text-white transition-opacity hover:opacity-85">
-              <div className="flex size-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary">
-                <span className="material-symbols-outlined text-[22px]">sports_motorsports</span>
-              </div>
-              <div className="min-w-0">
-                <span className="block text-xl font-black uppercase italic leading-none tracking-tight">MotoGear</span>
-                <span className="hidden text-[10px] font-bold uppercase tracking-[0.24em] text-white/45 sm:block">Ride ready storefront</span>
-              </div>
+            <Link
+              to="/"
+              className="flex items-center gap-3 text-white transition-opacity hover:opacity-85"
+            >
+              <img src={logo} alt="GZone" className="h-12" />
+              <span className="text-lg font-bold tracking-tighter uppercase">
+                GZone
+              </span>
             </Link>
           </div>
 
           <form onSubmit={handleSearchSubmit} className="hidden flex-1 lg:flex">
             <div className="relative w-full max-w-2xl">
-              <span className="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">search</span>
+              <span className="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">
+                search
+              </span>
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
@@ -113,11 +125,14 @@ const Header: React.FC = () => {
             >
               Shop Now
             </Link>
-            <Link to="/cart" className="relative flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white transition-colors hover:border-primary/40 hover:text-primary">
+            <Link
+              to="/cart"
+              className="relative flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white transition-colors hover:border-primary/40 hover:text-primary"
+            >
               <span className="material-symbols-outlined">shopping_cart</span>
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
-                  {cartCount > 99 ? '99+' : cartCount}
+                  {cartCount > 99 ? "99+" : cartCount}
                 </span>
               )}
             </Link>
@@ -130,7 +145,10 @@ const Header: React.FC = () => {
               </Link>
             )}
             {!isAuthenticated && (
-              <Link to="/login" className="hidden rounded-full bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-white transition-colors hover:bg-red-600 sm:inline-flex">
+              <Link
+                to="/login"
+                className="hidden rounded-full bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-white transition-colors hover:bg-red-600 sm:inline-flex"
+              >
                 Sign In
               </Link>
             )}
@@ -139,7 +157,9 @@ const Header: React.FC = () => {
 
         <div className="pb-3 lg:hidden">
           <form onSubmit={handleSearchSubmit} className="relative">
-            <span className="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">search</span>
+            <span className="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">
+              search
+            </span>
             <input
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
@@ -157,17 +177,25 @@ const Header: React.FC = () => {
               to={link.to}
               className={({ isActive }) =>
                 `whitespace-nowrap rounded-full px-4 py-2 transition-colors ${
-                  isActive ? 'bg-primary text-white' : 'bg-white/[0.03] hover:bg-white/[0.08] hover:text-white'
+                  isActive
+                    ? "bg-primary text-white"
+                    : "bg-white/[0.03] hover:bg-white/[0.08] hover:text-white"
                 }`
               }
             >
               {link.label}
             </NavLink>
           ))}
-          <Link to="/profile" className="whitespace-nowrap rounded-full bg-white/[0.03] px-4 py-2 transition-colors hover:bg-white/[0.08] hover:text-white">
+          <Link
+            to="/profile"
+            className="whitespace-nowrap rounded-full bg-white/[0.03] px-4 py-2 transition-colors hover:bg-white/[0.08] hover:text-white"
+          >
             Account
           </Link>
-          <Link to="/profile/orders" className="whitespace-nowrap rounded-full bg-white/[0.03] px-4 py-2 transition-colors hover:bg-white/[0.08] hover:text-white">
+          <Link
+            to="/profile/orders"
+            className="whitespace-nowrap rounded-full bg-white/[0.03] px-4 py-2 transition-colors hover:bg-white/[0.08] hover:text-white"
+          >
             Orders
           </Link>
         </nav>

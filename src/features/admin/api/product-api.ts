@@ -21,6 +21,7 @@ export interface Product {
   categoryId: string;
   createdAt: string;
   updatedAt?: string;
+  imageUrl?: string;
 }
 
 export interface ProductRequest {
@@ -41,6 +42,7 @@ export interface ProductRequest {
   isFeatured: boolean;
   warrantyPeriodMonths: number;
   categoryId: string;
+  imageUrl?: string;
 }
 
 const mapToBackend = (data: ProductRequest) => ({
@@ -60,8 +62,7 @@ const mapToBackend = (data: ProductRequest) => ({
   "is-active": data.isActive,
   "is-featured": data.isFeatured,
   "warranty-period-months": data.warrantyPeriodMonths || 0,
-  "category-id": data.categoryId,
-});
+  "category-id": data.categoryId,  "image-url": data.imageUrl || null,});
 
 const mapToFrontend = (data: any): Product => ({
   productId: data["product-id"],
@@ -84,6 +85,7 @@ const mapToFrontend = (data: any): Product => ({
   categoryId: data["category-id"],
   createdAt: data["created-at"],
   updatedAt: data["updated-at"],
+  imageUrl: data["image-url"],
 });
 
 export const getProducts = async (pageNumber = 1, pageSize = 50) => {
@@ -112,4 +114,30 @@ export const updateProduct = async (id: string, product: ProductRequest) => {
 export const deleteProduct = async (id: string) => {
   const response = await api.delete(`/products/${id}`);
   return response.data;
+};
+
+export const getProductImage = async (relativeUrl: string) => {
+  const response = await api.get(`/image/products/${relativeUrl}`, {
+    responseType: "blob",
+  });
+  return response.data;
+};
+
+export const createProductImage = async (
+  file: File,
+  fileName: string,
+  category: string = "product"
+) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("fileName", fileName);
+  formData.append("category", category);
+
+  const response = await api.post("/image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data; // { success, path }
 };

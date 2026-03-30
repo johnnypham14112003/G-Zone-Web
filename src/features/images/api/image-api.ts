@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import api from "@/lib/axios-api";
 
 export interface UploadImageResponse {
   success: boolean;

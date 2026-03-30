@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { getProducts, deleteProduct, createProduct, updateProduct, Product, ProductRequest } from "../api/product-api";
+import { getProducts, deleteProduct, createProduct, updateProduct, Product, ProductRequest, getProductImage } from "../api/product-api";
 import { getCategories, Category } from "../api/category-api";
 import ProductModal from "../components/ProductModal";
 
@@ -9,6 +9,8 @@ const AdminProducts: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageMap, setImageMap] = useState<Record<string, string>>({});
+
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,6 +37,29 @@ const AdminProducts: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const loadImages = async () => {
+      const map: Record<string, string> = {};
+
+      await Promise.all(
+        products.map(async (p) => {
+          try {
+            const blob = await getProductImage(p.productId+'.jpg');
+            const url = URL.createObjectURL(blob);
+            map[p.productId] = url;
+          } catch (err) {
+            console.error("Failed to load image", err);
+          }
+        })
+      );
+
+      setImageMap(map);
+    };
+
+    if (products.length) loadImages();
+  }, [products]);
+
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
@@ -92,6 +117,7 @@ const AdminProducts: React.FC = () => {
               <thead>
                 <tr className="bg-[#2a1212] text-text-muted text-xs uppercase tracking-widest border-b border-surface-border">
                   <th className="px-6 py-4 font-bold">Product Name</th>
+                  <th className="px-6 py-4 font-bold">Image</th>
                   <th className="px-6 py-4 font-bold">SKU</th>
                   <th className="px-6 py-4 font-bold">Category</th>
                   <th className="px-6 py-4 font-bold">Price</th>
@@ -102,11 +128,11 @@ const AdminProducts: React.FC = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-text-muted">Loading products...</td>
+                    <td colSpan={7} className="px-6 py-8 text-center text-text-muted">Loading products...</td>
                   </tr>
                 ) : products.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-text-muted">No products found.</td>
+                    <td colSpan={7} className="px-6 py-8 text-center text-text-muted">No products found.</td>
                   </tr>
                 ) : (
                   products.map((prod) => (
@@ -115,6 +141,18 @@ const AdminProducts: React.FC = () => {
                         <p className="text-white font-bold">{prod.productName}</p>
                         {prod.brand && <p className="text-xs text-text-muted mt-0.5">{prod.brand}</p>}
                       </td>
+                      <td className="px-6 py-4">
+                        {prod.imageUrl ? (
+                          <img
+                            src={`${import.meta.env.VITE_API_URL}/image/${prod.imageUrl}`}
+                            alt={prod.productName}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                        ) : (
+                          <span className="text-xs text-text-muted">No Image</span>
+                        )}
+                      </td>
+
                       <td className="px-6 py-4 text-text-muted">{prod.sku}</td>
                       <td className="px-6 py-4 text-text-muted">{getCategoryName(prod.categoryId)}</td>
                       <td className="px-6 py-4 text-white">${prod.basePrice.toFixed(2)}</td>

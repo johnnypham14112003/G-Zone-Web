@@ -78,9 +78,10 @@ const ProfileDropdown: React.FC = () => {
             <p className="text-xs text-gray-400 truncate">{user.email}</p>
           </div>
           <div className="py-2">
-            {user.role?.toLowerCase() === "admin" && (
+            {(user.role?.toLowerCase() === "admin" ||
+              user.role?.toLowerCase() === "staff") && (
               <Link
-                to="/admin"
+                to="/management"
                 className="flex items-center gap-3 px-4 py-2 text-sm text-primary hover:bg-[#333] transition-colors"
                 onClick={() => setIsOpen(false)}
               >
@@ -122,3 +123,4 @@ const ProfileDropdown: React.FC = () => {
 };
 
 export default ProfileDropdown;
+

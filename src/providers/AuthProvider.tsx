@@ -122,7 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Navigate only after the full user profile is loaded.
         if (user && (user.role === "Admin" || user.role === "Staff")) {
-          navigate("/dashboard");
+          navigate("/management");
         } else {
           navigate("/");
         }

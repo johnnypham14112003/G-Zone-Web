@@ -131,11 +131,11 @@ const mapOrderFromBackend = (data: any): Order => ({
 
 const mapOrderPatchToBackend = (patch: OrderPatchRequest) => ({
   status: patch.status,
-  "payment-status": patch.paymentStatus,
-  "cancellation-reason": patch.cancellationReason,
-  "tracking-number": patch.trackingNumber,
-  "estimated-delivery": patch.estimatedDelivery,
-  "managed-by-staff-id": patch.managedByStaffId,
+  paymentStatus: patch.paymentStatus,
+  cancellationReason: patch.cancellationReason,
+  trackingNumber: patch.trackingNumber,
+  estimatedDelivery: patch.estimatedDelivery,
+  managedByStaffId: patch.managedByStaffId,
 });
 
 const toQuery = (query?: Record<string, string | number | undefined>) => {

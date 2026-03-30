@@ -41,6 +41,8 @@ const AdminOrders: React.FC = () => {
     try {
       setUpdatingOrderId(orderId);
       await patchOrder(orderId, { status });
+        const order = orders.find(o => o.orderId === orderId);
+        if (order && order.accountId) { await notificationApi.sendNotification(order.accountId, { title: 'Order Update: ' + order.orderNumber, message: 'Your order status is now ' + status, type: 'Order' }).catch(console.error); }
       await loadOrders();
     } catch (err: any) {
       console.error('Failed to update order status', err);
@@ -143,3 +145,4 @@ const AdminOrders: React.FC = () => {
 };
 
 export default AdminOrders;
+

@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import highPerformanceRedSportMotorcycle from "@/assets/high-performance-red-sport-motorcycle.png";
-import helmet from "@/assets/helmet.png";
-import jacket from "@/assets/jacket.png";
-import gloves from "@/assets/gloves.png";
+import { APP_IMAGES } from "@/constants/images";
 import { Product, getProducts } from "@/features/admin/api/product-api";
 import { addToCart } from "@/lib/cart";
 import { useToast } from "@/providers/ToastProvider";
@@ -18,21 +15,21 @@ const Home: React.FC = () => {
       subtitle: "Protection",
       description:
         "DOT & SNELL certified options for daily road and touring use.",
-      image: helmet,
+      image: APP_IMAGES.home.helmet,
       span: "md:col-span-2 md:row-span-2",
     },
     {
       title: "Jackets",
       subtitle: "Weather Ready",
       description: "Layered outerwear for urban riding and longer routes.",
-      image: jacket,
+      image: APP_IMAGES.home.jacket,
       span: "",
     },
     {
       title: "Gloves",
       subtitle: "Grip Control",
       description: "Short cuff and gauntlet gloves with impact protection.",
-      image: gloves,
+      image: APP_IMAGES.home.gloves,
       span: "",
     },
   ];
@@ -59,6 +56,7 @@ const Home: React.FC = () => {
       quantity: 1,
       categoryId: product.categoryId,
       warrantyPeriodMonths: product.warrantyPeriodMonths,
+      imageUrl: product.imageUrl,
     });
     showToast(`"${product.productName}" added to cart!`);
   };
@@ -74,7 +72,7 @@ const Home: React.FC = () => {
               <img
                 alt="High performance red sport motorcycle"
                 className="h-full w-full object-cover object-center opacity-80"
-                src={highPerformanceRedSportMotorcycle}
+                src={APP_IMAGES.home.heroMotorcycle}
               />
             </div>
             <div className="relative z-20 flex h-full flex-col justify-between px-6 py-7 md:px-10 md:py-10">
@@ -250,11 +248,19 @@ const Home: React.FC = () => {
             >
               <Link
                 to={`/product/${product.productId}`}
-                className="flex h-48 items-center justify-center border-b border-white/5 bg-[radial-gradient(circle_at_top,_rgba(230,0,0,0.14),_transparent_40%),linear-gradient(180deg,_#191919,_#101010)] p-5"
+                className="flex h-48 items-center justify-center border-b border-white/5 bg-[radial-gradient(circle_at_top,_rgba(230,0,0,0.14),_transparent_40%),linear-gradient(180deg,_#191919,_#101010)] overflow-hidden"
               >
-                <span className="material-symbols-outlined text-[64px] text-white/18">
-                  inventory_2
-                </span>
+                {product.imageUrl ? (
+                  <img 
+                    src={product.imageUrl} 
+                    alt={product.productName} 
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
+                  />
+                ) : (
+                  <span className="material-symbols-outlined text-[64px] text-white/18">
+                    inventory_2
+                  </span>
+                )}
               </Link>
               <div className="p-5">
                 <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-text-muted">
@@ -355,3 +361,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+

@@ -6,6 +6,7 @@ export interface CartItem {
   quantity: number;
   categoryId?: string;
   warrantyPeriodMonths?: number;
+  imageUrl?: string;
 }
 
 const CART_KEY = "gzone_cart";

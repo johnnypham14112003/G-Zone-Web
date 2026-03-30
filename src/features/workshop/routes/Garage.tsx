@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import GarageCard1 from '../../../assets/garage-card-1.png';
-import GarageCard2 from '../../../assets/garage-card-2.png';
+import { APP_IMAGES } from '@/constants/images';
 
 const Garage: React.FC = () => {
   return (
@@ -36,7 +35,7 @@ const Garage: React.FC = () => {
           <div className="relative aspect-[4/3] overflow-hidden bg-[#2a1212]">
             <div className="absolute top-3 left-3 z-10 bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide backdrop-blur-md">In Stock</div>
             <button className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-black/40 hover:bg-primary text-white backdrop-blur-sm transition-colors"><span className="material-symbols-outlined text-[18px]">close</span></button>
-            <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: `url(${GarageCard1})` }}></div>
+            <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: `url(${APP_IMAGES.garage.card1})` }}></div>
           </div>
           <div className="flex flex-col flex-1 p-5">
             <div className="flex-1">
@@ -55,7 +54,7 @@ const Garage: React.FC = () => {
           <div className="relative aspect-[4/3] overflow-hidden bg-[#2a1212]">
             <div className="absolute top-3 left-3 z-10 bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide backdrop-blur-md">Low Stock</div>
             <button className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-black/40 hover:bg-primary text-white backdrop-blur-sm transition-colors"><span className="material-symbols-outlined text-[18px]">close</span></button>
-            <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: `url(${GarageCard2})` }}></div>
+            <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: `url(${APP_IMAGES.garage.card2})` }}></div>
           </div>
           <div className="flex flex-col flex-1 p-5">
             <div className="flex-1">
