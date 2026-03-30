@@ -28,6 +28,7 @@ const MainLayout: React.FC = () => {
 
 import ProfilePage from "@/features/accounts/routes/ProfilePage";
 import AddressPage from "@/features/accounts/routes/AddressPage";
+import MyVouchers from "@/features/accounts/routes/MyVouchers";
 import MyOrders from "./src/features/orders/routes/MyOrders";
 
 import AdminLayout from "@/components/Layout/Admin/AdminLayout";
@@ -36,6 +37,9 @@ import AdminCategories from "@/features/admin/routes/AdminCategories";
 import AdminProducts from "@/features/admin/routes/AdminProducts";
 import AdminAccounts from "@/features/admin/routes/AdminAccounts";
 import AdminOrders from "./src/features/admin/routes/AdminOrders";
+import AdminVouchers from "@/features/admin/routes/AdminVouchers";
+import AdminUserVouchers from "@/features/admin/routes/AdminUserVouchers";
+import AdminOrderVouchers from "@/features/admin/routes/AdminOrderVouchers";
 import { ToastProvider } from "@/providers/ToastProvider";
 
 const App: React.FC = () => {
@@ -61,6 +65,7 @@ const App: React.FC = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/profile/orders" element={<MyOrders />} />
+              <Route path="/profile/vouchers" element={<MyVouchers />} />
             </Route>
 
             {/* Management Routes */}
@@ -70,6 +75,9 @@ const App: React.FC = () => {
               <Route path="categories" element={<AdminCategories />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="orders" element={<AdminOrders />} />
+              <Route path="vouchers" element={<AdminVouchers />} />
+              <Route path="user-vouchers" element={<AdminUserVouchers />} />
+              <Route path="order-vouchers" element={<AdminOrderVouchers />} />
             </Route>
 
             {/* Auth Route */}
