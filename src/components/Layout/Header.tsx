@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/providers/AuthProvider';
 import ProfileDropdown from '../UI/ProfileDropdown';
+import NotificationBell from './NotificationBell';
 import { getCart, getCartCount } from '@/lib/cart';
 
 const primaryLinks = [
@@ -120,6 +121,7 @@ const Header: React.FC = () => {
                 </span>
               )}
             </Link>
+            <NotificationBell />
             {isAuthenticated ? (
               <ProfileDropdown />
             ) : (

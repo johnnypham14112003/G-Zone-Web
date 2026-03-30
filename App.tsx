@@ -14,6 +14,7 @@ import Cart from "./src/features/cart/routes/Cart";
 import Accessories from "@/features/products/routes/Accessories";
 import { AuthProvider } from "@/providers/AuthProvider";
 import BadRequest from "@/components/pages/BadRequest";
+import AllNotificationsPage from "@/features/accounts/routes/AllNotificationsPage";
 
 const MainLayout: React.FC = () => {
   return (
@@ -61,6 +62,7 @@ const App: React.FC = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/profile/orders" element={<MyOrders />} />
+              <Route path="/profile/notifications" element={<AllNotificationsPage />} />
               {/* Keep this dashboard for customers */}
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
