@@ -88,12 +88,10 @@ const ScoreBar: React.FC<{ label: number; count: number; total: number }> = ({ l
 // ─── Props ────────────────────────────────────────────────────────
 interface ProductRatingsProps {
   productId: string;
-  averageRating: number;
-  totalReviews: number;
 }
 
 // ─── Main ─────────────────────────────────────────────────────────
-const ProductRatings: React.FC<ProductRatingsProps> = ({ productId, averageRating, totalReviews }) => {
+const ProductRatings: React.FC<ProductRatingsProps> = ({ productId }) => {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<number | null>(null);
@@ -156,6 +154,11 @@ const ProductRatings: React.FC<ProductRatingsProps> = ({ productId, averageRatin
     count: ratings.filter((r) => r['rating-score'] === s).length,
   }));
   const filtered = filter ? ratings.filter((r) => r['rating-score'] === filter) : ratings;
+  const totalReviews = ratings.length;
+  const averageRating =
+    totalReviews > 0
+      ? ratings.reduce((sum, r) => sum + r['rating-score'], 0) / totalReviews
+      : 0;
 
   if (loading) {
     return (

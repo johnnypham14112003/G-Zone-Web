@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Product, getProductById, getProducts } from '@/features/admin/api/product-api';
 import { addToCart } from '@/lib/cart';
+import ProductRatings from './Productratings';
 import { useToast } from '@/providers/ToastProvider';
-import RequestCustomizationModal from '@/features/customizations/components/RequestCustomizationModal';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams();
@@ -14,7 +14,6 @@ const ProductDetail: React.FC = () => {
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
-  const [customModalOpen, setCustomModalOpen] = useState(false);
 
   useEffect(() => {
     if (!id) { navigate('/shop'); return; }
@@ -213,34 +212,12 @@ const ProductDetail: React.FC = () => {
                 Buy Now (COD)
               </button>
             </div>
-
-            {/* CUSTOMIZATION LOGIC INJECTED RIGHT BELOW BUY NOW */}
-            <div className="mt-6 pt-6 border-t border-[#3a1a1a]">
-              <button
-                onClick={() => setCustomModalOpen(true)}
-                className="w-full h-13 py-3 rounded-lg font-bold text-sm uppercase tracking-widest transition-all border border-dashed border-primary/50 bg-primary/5 hover:bg-primary/20 text-primary flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined">design_services</span>
-                Request Design Customization
-              </button>
-              <p className="text-center text-[11px] text-text-muted mt-2 uppercase tracking-wide">
-                Modify colors, sizes, or add decals to this item
-              </p>
-            </div>
-
           </div>
         </div>
       </div>
 
-      {product && (
-        <RequestCustomizationModal
-          isOpen={customModalOpen}
-          onClose={() => setCustomModalOpen(false)}
-          productId={product.productId}
-          productName={product.productName}
-          productSku={product.sku}
-        />
-      )}
+      {/* Ratings and Reviews Section */}
+      <ProductRatings productId={product.productId} />
 
       {/* Related Products */}
       {related.length > 0 && (
@@ -273,8 +250,3 @@ const ProductDetail: React.FC = () => {
 };
 
 export default ProductDetail;
-
-
-
-
-
