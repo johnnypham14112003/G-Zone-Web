@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import CustomizationModal from "./components/CustomizationModal";
 import {
   CartItem,
   getCart,
@@ -16,10 +17,11 @@ const Cart: React.FC = () => {
   useEffect(() => {
     const load = () => setItems(getCart());
     load();
-    syncCartFromServer().then(load);
     window.addEventListener('cart:updated', load);
     return () => window.removeEventListener('cart:updated', load);
   }, []);
+
+  const [customizingItem, setCustomizingItem] = useState<CartItem | null>(null);
 
   const subtotal = useMemo(() => getCartSubtotal(items), [items]);
   const totalItems = useMemo(() => getCartCount(items), [items]);
@@ -46,9 +48,8 @@ const Cart: React.FC = () => {
                 <div className="flex flex-col md:grid md:grid-cols-12 gap-6 p-5 items-center">
                   <div className="col-span-6 flex items-start gap-5 w-full">
                     <div className="shrink-0 relative">
-                      <div className="bg-center bg-no-repeat bg-cover rounded-lg size-24 md:size-28 bg-[#150a0a] border border-[#3a1515] flex items-center justify-center overflow-hidden">
-                        {!item.imageUrl && <span className="material-symbols-outlined text-white/25">inventory_2</span>}
-                          {item.imageUrl && <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />}
+                      <div className="bg-center bg-no-repeat bg-cover rounded-lg size-24 md:size-28 bg-[#150a0a] border border-[#3a1515] flex items-center justify-center">
+                        <span className="material-symbols-outlined text-white/25">inventory_2</span>
                       </div>
                     </div>
                     <div>
@@ -82,11 +83,27 @@ const Cart: React.FC = () => {
                   <div className="col-span-2 text-right flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto mt-4 md:mt-0 border-t border-[#3a1515] md:border-none pt-4 md:pt-0">
                     <span className="text-white font-bold text-lg">${(item.basePrice * item.quantity).toFixed(2)}</span>
                     <button
+                      onClick={() => setCustomizingItem(item)}
+                      className="text-xs font-bold uppercase text-yellow-400 hover:text-yellow-300 mb-2"
+                    >
+                      Customize
+                    </button>
+                    <button
                       onClick={() => removeCartItem(item.productId)}
                       className="text-xs font-bold uppercase text-red-400 hover:text-red-300"
                     >
                       Remove
                     </button>
+                    {customizingItem && (
+                      <CustomizationModal
+                        item={customizingItem}
+                        onClose={() => setCustomizingItem(null)}
+                        onSave={(data) => {
+                          console.log("Customization:", data);
+                          
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -122,6 +139,3 @@ const Cart: React.FC = () => {
 };
 
 export default Cart;
-
-
-
