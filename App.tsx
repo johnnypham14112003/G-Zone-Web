@@ -29,8 +29,12 @@ const MainLayout: React.FC = () => {
 
 import ProfilePage from "@/features/accounts/routes/ProfilePage";
 import AddressPage from "@/features/accounts/routes/AddressPage";
+
 import NotificationPage from "@/features/notifications/routes/NotificationPage";
 import WarrantyPage from "@/features/warranty/routes/WarrantyPage";
+
+import MyVouchers from "@/features/accounts/routes/MyVouchers";
+
 import MyOrders from "./src/features/orders/routes/MyOrders";
 
 import AdminLayout from "@/components/Layout/Admin/AdminLayout";
@@ -39,9 +43,15 @@ import AdminCategories from "@/features/admin/routes/AdminCategories";
 import AdminProducts from "@/features/admin/routes/AdminProducts";
 import AdminAccounts from "@/features/admin/routes/AdminAccounts";
 import AdminOrders from "./src/features/admin/routes/AdminOrders";
+
 import AdminWarrantyPage from "@/features/admin/routes/AdminWarrantyPage";
 import CustomerCustomizationList from "@/features/customizations/routes/CustomerCustomizationList";
 import AdminCustomizationList from "@/features/customizations/routes/AdminCustomizationList";
+
+import AdminVouchers from "@/features/admin/routes/AdminVouchers";
+import AdminUserVouchers from "@/features/admin/routes/AdminUserVouchers";
+import AdminOrderVouchers from "@/features/admin/routes/AdminOrderVouchers";
+
 import { ToastProvider } from "@/providers/ToastProvider";
 
 const App: React.FC = () => {
@@ -67,9 +77,13 @@ const App: React.FC = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/profile/orders" element={<MyOrders />} />
+
               <Route path="/profile/notifications" element={<AllNotificationsPage />} />
               <Route path="/profile/warranties" element={<WarrantyPage />} />
               <Route path="/profile/customizations" element={<CustomerCustomizationList />} />
+
+              <Route path="/profile/vouchers" element={<MyVouchers />} />
+
             </Route>
             <Route path="/management" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
@@ -77,8 +91,14 @@ const App: React.FC = () => {
               <Route path="categories" element={<AdminCategories />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="orders" element={<AdminOrders />} />
+
               <Route path="warranties" element={<AdminWarrantyPage />} />
               <Route path="customizations" element={<AdminCustomizationList />} />
+
+              <Route path="vouchers" element={<AdminVouchers />} />
+              <Route path="user-vouchers" element={<AdminUserVouchers />} />
+              <Route path="order-vouchers" element={<AdminOrderVouchers />} />
+
             </Route>
 
             {/* Auth Route */}

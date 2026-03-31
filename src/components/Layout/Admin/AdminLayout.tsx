@@ -11,6 +11,18 @@ const NAVIGATION_ITEMS = [
   { name: "Orders", href: "/management/orders", icon: "local_mall" },
   { name: "Warranties", href: "/management/warranties", icon: "plumbing" },
   { name: "Customizations", href: "/management/customizations", icon: "design_services" },
+
+  { name: "Vouchers", href: "/management/vouchers", icon: "local_offer" },
+  {
+    name: "User Vouchers",
+    href: "/management/user-vouchers",
+    icon: "redeem",
+  },
+  {
+    name: "Order Vouchers",
+    href: "/management/order-vouchers",
+    icon: "sell",
+  },
 ];
 
 const AdminLayout: React.FC = () => {

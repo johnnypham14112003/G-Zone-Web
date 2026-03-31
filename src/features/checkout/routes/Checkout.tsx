@@ -4,6 +4,14 @@ import { clearCart, getCart, getCartSubtotal } from '@/lib/cart';
 import { createOrder } from '@/features/orders/api/order-api';
 import { getUserAddresses } from '@/features/accounts/api/address-api';
 import { useAuth } from '@/providers/AuthProvider';
+import { getMyUserVouchers, UserVoucher } from "@/features/accounts/api/user-voucher-api";
+import { applyVoucherToOrder } from "@/features/orders/api/order-voucher-api";
+import {
+  clearSelectedVoucher,
+  getSelectedVoucher,
+  setSelectedVoucher,
+} from "@/lib/selected-voucher";
+import { useToast } from "@/providers/ToastProvider";
 
 const Checkout: React.FC = () => {
   const { user } = useAuth();
@@ -15,13 +23,97 @@ const Checkout: React.FC = () => {
   const [receiverPhone, setReceiverPhone] = useState('');
   const [note, setNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'ONLINE'>('COD');
+
   const [submitting, setSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<{ orderNumber: string } | null>(null);
+  const [myVouchers, setMyVouchers] = useState<UserVoucher[]>([]);
+  const [voucherLoading, setVoucherLoading] = useState(true);
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string>("");
+  const { showToast } = useToast();
 
   const cartItems = useMemo(() => getCart(), []);
   const subtotal = useMemo(() => getCartSubtotal(cartItems), [cartItems]);
   const shippingFee = subtotal > 0 ? 1.5 : 0;
-  const total = subtotal + shippingFee;
+
+  useEffect(() => {
+    const syncVouchers = async () => {
+      try {
+        setVoucherLoading(true);
+        const data = await getMyUserVouchers();
+        setMyVouchers(data || []);
+
+        const selected = getSelectedVoucher();
+        setSelectedVoucherId(selected?.voucherId || "");
+      } catch (err: any) {
+        console.error(err);
+      } finally {
+        setVoucherLoading(false);
+      }
+    };
+
+    syncVouchers();
+  }, []);
+
+  const availableVouchers = useMemo(() => {
+    const now = Date.now();
+    return myVouchers.filter((voucher) => {
+      const start = new Date(voucher.startDate).getTime();
+      const end = new Date(voucher.endDate).getTime();
+      return voucher.isActive && !voucher.isUsed && now >= start && now <= end;
+    });
+  }, [myVouchers]);
+
+  const selectedVoucher = useMemo(() => {
+    if (!selectedVoucherId) {
+      return null;
+    }
+    return availableVouchers.find((voucher) => voucher.voucherId === selectedVoucherId) || null;
+  }, [availableVouchers, selectedVoucherId]);
+
+  const voucherDiscount = useMemo(() => {
+    if (!selectedVoucher) {
+      return 0;
+    }
+
+    if (subtotal < selectedVoucher.minOrderAmount) {
+      return 0;
+    }
+
+    if (selectedVoucher.discountType === "Percentage") {
+      const percentageDiscount = (subtotal * selectedVoucher.discountValue) / 100;
+      return Math.min(percentageDiscount, selectedVoucher.maxDiscountAmount);
+    }
+
+    return Math.min(selectedVoucher.discountValue, subtotal);
+  }, [selectedVoucher, subtotal]);
+
+  const total = Math.max(0, subtotal + shippingFee - voucherDiscount);
+
+  const handleVoucherChange = (voucherId: string) => {
+    setSelectedVoucherId(voucherId);
+
+    if (!voucherId) {
+      clearSelectedVoucher();
+      return;
+    }
+
+    const voucher = availableVouchers.find((item) => item.voucherId === voucherId);
+    if (!voucher) {
+      return;
+    }
+
+    setSelectedVoucher({
+      voucherId: voucher.voucherId,
+      voucherCode: voucher.voucherCode,
+      voucherName: voucher.voucherName,
+      discountType: voucher.discountType,
+      discountValue: voucher.discountValue,
+      maxDiscountAmount: voucher.maxDiscountAmount,
+      minOrderAmount: voucher.minOrderAmount,
+      startDate: voucher.startDate,
+      endDate: voucher.endDate,
+    });
+  };
 
   useEffect(() => {
     const fetchDefaultAddress = async () => {
@@ -55,12 +147,19 @@ const Checkout: React.FC = () => {
     e.preventDefault();
 
     if (cartItems.length === 0) {
-      alert('Your cart is empty.');
+      alert("Your cart is empty.");
       return;
     }
 
-    if (paymentMethod !== 'COD') {
-      alert('Online payment will be implemented in a later phase. Please use COD for now.');
+    if (paymentMethod !== "COD") {
+      alert("Online payment will be implemented in a later phase. Please use COD for now.");
+      return;
+    }
+
+    if (selectedVoucher && subtotal < selectedVoucher.minOrderAmount) {
+      alert(
+        `Selected voucher requires minimum order of $${selectedVoucher.minOrderAmount.toFixed(2)}.`,
+      );
       return;
     }
 
@@ -73,27 +172,45 @@ const Checkout: React.FC = () => {
         shippingWard,
         receiverName,
         receiverPhone,
-        paymentMethod: 'COD',
+        paymentMethod: "COD",
         wholeSale: false,
         note,
         orderDetails: cartItems.map((item) => ({
-            productVariantId: undefined, // frontend only has productId, not variantId
-            customizationId: item.isCustomization ? item.productId : undefined,
-            productName: item.productName,
-            variantInfo: item.sku,
-            quantity: item.quantity,
-            unitPrice: item.basePrice,
-            discountAmount: 0,
-            isCustomDesign: !!item.isCustomization,
-            warrantyPeriodMonths: item.warrantyPeriodMonths || 0,
+          productVariantId: undefined, // frontend only has productId, not variantId
+          customizationId: item.isCustomization ? item.productId : undefined,
+          productName: item.productName,
+          variantInfo: item.sku,
+          quantity: item.quantity,
+          unitPrice: item.basePrice,
+          discountAmount: 0,
+          isCustomDesign: !!item.isCustomization,
+          warrantyPeriodMonths: item.warrantyPeriodMonths || 0,
         })),
       });
 
+      if (selectedVoucher) {
+        try {
+          await applyVoucherToOrder({
+            orderId: order.orderId,
+            voucherId: selectedVoucher.voucherId,
+          });
+          showToast("Voucher applied to your order", "success");
+        } catch (voucherError: any) {
+          console.error(voucherError?.response?.data || voucherError);
+          showToast(
+            voucherError?.response?.data?.message ||
+            "Order placed, but voucher could not be applied",
+            "error",
+          );
+        }
+      }
+
       clearCart();
+      clearSelectedVoucher();
       setOrderSuccess({ orderNumber: order.orderNumber });
     } catch (error: any) {
       console.error(error.response?.data || error);
-      alert(error.response?.data?.message || 'Failed to place order.');
+      alert(error.response?.data?.message || "Failed to place order.");
     } finally {
       setSubmitting(false);
     }
@@ -141,21 +258,66 @@ const Checkout: React.FC = () => {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
-              onClick={() => setPaymentMethod('COD')}
-              className={`rounded border px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${paymentMethod === 'COD' ? 'border-primary bg-primary/20 text-white' : 'border-surface-border text-text-muted hover:text-white'}`}
+              onClick={() => setPaymentMethod("COD")}
+              className={`rounded border px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${paymentMethod === "COD" ? "border-primary bg-primary/20 text-white" : "border-surface-border text-text-muted hover:text-white"}`}
             >
               Cash On Delivery
             </button>
             <button
               type="button"
-              onClick={() => setPaymentMethod('ONLINE')}
-              className={`rounded border px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${paymentMethod === 'ONLINE' ? 'border-primary bg-primary/20 text-white' : 'border-surface-border text-text-muted hover:text-white'}`}
+              onClick={() => setPaymentMethod("ONLINE")}
+              className={`rounded border px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${paymentMethod === "ONLINE" ? "border-primary bg-primary/20 text-white" : "border-surface-border text-text-muted hover:text-white"}`}
             >
               Online (Later)
             </button>
           </div>
-          {paymentMethod === 'ONLINE' && (
+          {paymentMethod === "ONLINE" && (
             <p className="text-xs text-yellow-300">Online payment integration is planned for the next phase.</p>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-surface-border bg-surface-dark p-6 space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Voucher</h2>
+            <Link
+              to="/profile/vouchers"
+              className="text-xs font-bold uppercase tracking-wider text-text-muted hover:text-white"
+            >
+              Manage My Vouchers
+            </Link>
+          </div>
+
+          {voucherLoading ? (
+            <p className="text-sm text-text-muted">Loading vouchers...</p>
+          ) : availableVouchers.length === 0 ? (
+            <p className="text-sm text-text-muted">No available vouchers. You can continue without voucher.</p>
+          ) : (
+            <select
+              value={selectedVoucherId}
+              onChange={(e) => handleVoucherChange(e.target.value)}
+              className="w-full rounded border border-surface-border bg-[#1a1a1a] px-3 py-3 text-white"
+            >
+              <option value="">No voucher</option>
+              {availableVouchers.map((voucher) => (
+                <option key={voucher.voucherId} value={voucher.voucherId}>
+                  {voucher.voucherCode} - {voucher.voucherName}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {selectedVoucher && (
+            <div className="rounded border border-surface-border bg-black/20 p-3 text-xs text-text-muted space-y-1">
+              <p>
+                Selected: <span className="font-bold text-white">{selectedVoucher.voucherCode}</span>
+              </p>
+              <p>
+                Min order: ${selectedVoucher.minOrderAmount.toFixed(2)}
+              </p>
+              <p>
+                Estimated discount: <span className="font-bold text-green-400">-${voucherDiscount.toFixed(2)}</span>
+              </p>
+            </div>
           )}
         </div>
 
@@ -164,7 +326,7 @@ const Checkout: React.FC = () => {
           disabled={submitting}
           className="h-12 rounded bg-primary px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-red-600 disabled:opacity-60"
         >
-          {submitting ? 'Placing Order...' : 'Place COD Order'}
+          {submitting ? "Placing Order..." : "Place COD Order"}
         </button>
       </form>
 
@@ -186,6 +348,7 @@ const Checkout: React.FC = () => {
           <div className="mt-5 space-y-2 text-sm">
             <div className="flex justify-between text-text-muted"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
             <div className="flex justify-between text-text-muted"><span>Shipping</span><span>${shippingFee.toFixed(2)}</span></div>
+            <div className="flex justify-between text-text-muted"><span>Voucher Discount</span><span>-${voucherDiscount.toFixed(2)}</span></div>
             <div className="flex justify-between border-t border-surface-border pt-3 text-base font-bold text-white"><span>Total</span><span className="text-primary">${total.toFixed(2)}</span></div>
           </div>
         </div>
